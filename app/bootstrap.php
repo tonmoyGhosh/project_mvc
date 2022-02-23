@@ -1,13 +1,30 @@
 <?php 
 
 require_once 'app/config/config.php';
-require_once 'app/controller/SubmissionController.php';
+require_once 'app/controller/Submission.php';
 
 class Core {
-
+    
     public function __construct()
-    {   
-        $controller =  new SubmissionController;
-        $controller->index();
+    {       
+        $url = $_SERVER['PHP_SELF']; 
+        $filterParam = explode("/",$url);
+
+        if(count($filterParam) > 3 && $filterParam[3] && $filterParam[4])
+        {
+            $controller = $filterParam[3];
+            $method = $filterParam[4];
+        }
+        else
+        {   
+            $controller = 'Submission';
+            $method = 'index';
+        }
+
+        $obj = new $controller;
+        $obj->$method();
+        
     }
+
+    
 }
