@@ -29,54 +29,76 @@ class Submission extends Controller {
     {       
         if($_SERVER['REQUEST_METHOD'] == 'POST')
         {     
-            // $inputParams = $_POST;  
-            // $rules = array(
-            //     'amount'        => 'required',
-            //     'buyer'         => 'required',
-            //     'buyer_email'   => 'required',
-            //     'city'          => 'required',
-            //     'items'         => 'required',
-            //     'note'          => 'required',
-            //     'phone'         => 'required',
-            //     'receipt_id'    => 'required',
+            if(!isset($_COOKIE['User_check_for_form_submission']))
+            {   
+                
+                // $inputParams = $_POST;  
+                // $rules = array(
+                //     'amount'        => 'required',
+                //     'buyer'         => 'required',
+                //     'buyer_email'   => 'required',
+                //     'city'          => 'required',
+                //     'items'         => 'required',
+                //     'note'          => 'required',
+                //     'phone'         => 'required',
+                //     'receipt_id'    => 'required',
 
-            // );
+                // );
 
-            // $validateResponse = $this->validate($inputParams, $rules);
+                // $validateResponse = $this->validate($inputParams, $rules);
 
-            // echo json_encode($validateResponse);
-            // die();
+                // echo json_encode($validateResponse);
+                // die();
 
-            $ipAddress = $this->getIPAddress();  
+                // Set cookie for 24 hours
+                $cookie_name = 'User_check_for_form_submission';
+                $cookie_expire = time() + 60;
+                setcookie($cookie_name, $cookie_expire);
 
-            $salt_prefix = uniqid(mt_rand());
-            $salt_postfix = uniqid(mt_rand());
-            $combine = $salt_prefix.''.$_POST['receipt_id'].''.$salt_postfix;
-            $hash_key = hash("sha512", $combine);
+                // Get IP address
+                $ipAddress = $this->getIPAddress();  
 
-            $data = [
-                'buyer'         => $_POST['buyer'],
-                'buyer_email'   => $_POST['buyer_email'],
-                'receipt_id'    => $_POST['receipt_id'],
-                'city'          => $_POST['city'],
-                'items'         => $_POST['items'],
-                'note'          => $_POST['note'],
-                'phone'         => $_POST['phone'],
-                'amount'        => $_POST['amount'],
-                'buyer_ip'      => $ipAddress,
-                'entry_at'      => date('Y-m-d'),
-                'entry_by'      => $_POST['entry_by'],
-                'hash_key'      => $hash_key,
-            ];
+                // Generate proper ‘salt’ using sha-512 for hash key
+                $salt_prefix = uniqid(mt_rand());
+                $salt_postfix = uniqid(mt_rand());
+                $combine = $salt_prefix.''.$_POST['receipt_id'].''.$salt_postfix;
+                $hash_key = hash("sha512", $combine);
 
-            $this->submissionModel->addSubmission($data);
+                $data = [
+                    'buyer'         => $_POST['buyer'],
+                    'buyer_email'   => $_POST['buyer_email'],
+                    'receipt_id'    => $_POST['receipt_id'],
+                    'city'          => $_POST['city'],
+                    'items'         => $_POST['items'],
+                    'note'          => $_POST['note'],
+                    'phone'         => $_POST['phone'],
+                    'amount'        => $_POST['amount'],
+                    'buyer_ip'      => $ipAddress,
+                    'entry_at'      => date('Y-m-d'),
+                    'entry_by'      => $_POST['entry_by'],
+                    'hash_key'      => $hash_key,
+                ];
 
-            $response = array(
-                'status' => true,
-                'msg'    => 'Submission inserted successfully!'
-            );
+                $this->submissionModel->addSubmission($data);
 
-            echo json_encode($response);
+                $response = array(
+                    'status' => true,
+                    'msg'    => 'Submission inserted successfully!'
+                );
+
+                echo json_encode($response);
+
+                
+            }
+            else
+            {
+                $response = array(
+                    'status' => false,
+                    'msg'    => 'Submission not inserted successfully, please try again after 1 mintue!'
+                );
+    
+                echo json_encode($response);
+            }
         }
         else
         {
