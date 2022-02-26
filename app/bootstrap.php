@@ -22,9 +22,8 @@ class Core {
         }
 
         $obj = new $controller;
-        $obj->$method();
-        
+        $exists = method_exists($obj, $method);
+        ($exists == true) ? $obj->$method() : die('404 not found');
     }
 
-    
 }
