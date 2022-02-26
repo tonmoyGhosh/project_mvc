@@ -10,9 +10,16 @@ class Submission extends Controller {
     }
 
     public function index()
-    {
-        $submissionsList = $this->submissionModel->getSubmissions();
-
+    {   
+        if(isset($_POST['start_at']) && isset($_POST['end_at']))
+        {
+            $submissionsList = $this->submissionModel->getSubmissionsByDateRange($_POST['start_at'], $_POST['end_at']);
+        }
+        else
+        {
+            $submissionsList = $this->submissionModel->getSubmissions();
+        }
+        
         $data = [
             'submissionsList' => $submissionsList
         ];

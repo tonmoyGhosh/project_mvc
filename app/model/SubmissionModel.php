@@ -17,6 +17,13 @@ class SubmissionModel {
         return $result;
     }
 
+    public function getSubmissionsByDateRange($startdate, $endDate)
+    {
+        $result = $this->db->query('SELECT * FROM submissions WHERE entry_at >="' . $startdate . '" AND entry_at <= "' . $endDate . '"');
+
+        return $result;
+    }
+
     public function addSubmission($data)
     {
         $result = $this->db->query("INSERT INTO submissions (
